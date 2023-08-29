@@ -36,18 +36,32 @@
                             <P>11/01/2022</P>
                         </div>
                         <div>
-                            <button class="btn btn-sm">Details</button>
+                            <button class="btn btn-sm" onclick="modal.showModal()">Details</button>
                         </div>
                     </div>
+                </div> -->
+            <!-- </div> -->
+        </div> 
+        <dialog id="modal" class="modal modal-bottom sm:modal-middle">
+            <!-- <form method="dialog" class="modal-box">
+                <h3 class="font-bold text-lg">Hello!</h3>
+                <p class="py-4">Press ESC key or click the button below to close</p>
+                <div class="modal-action">
+                    <button class="btn">Close</button>
                 </div>
-            </div> -->
-        </div>
+            </form> -->
+        </dialog> 
+
     </section>
 
-    <div class="text-center mt-10">
+    
+    
+
+    <div class="text-center my-10">
         <button class="btn bg-[#EB5757] text-white hidden" id="see-more-btn">See More</button>
         <button class="btn bg-[#EB5757] text-white hidden" id="see-less-btn">See Less</button>
     </div>
+
     <!-- Script -->
     <script src="./app.js"></script>
 </body>

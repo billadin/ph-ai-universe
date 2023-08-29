@@ -2,6 +2,7 @@ const cardContainer = document.getElementById('card-container');
 const seeMoreBtn = document.getElementById('see-more-btn');
 const seeLessBtn = document.getElementById('see-less-btn');
 
+
 let allTools;
 
 const loadAI = async () => {
@@ -12,6 +13,8 @@ const loadAI = async () => {
     displayTools(tools);
     };
 
+
+//Display default card
 const displayTools = (tools) => {
     if (tools.length > 6) {
         seeMoreBtn.classList.remove('hidden');
@@ -21,9 +24,11 @@ const displayTools = (tools) => {
     tools = tools.slice(0, 6);
     tools.forEach(tool => {
         createCard(tool);
-    });
+    });  
 }
 
+ 
+//Display all cards
 seeMoreBtn.addEventListener('click', () => {
     cardContainer.innerHTML = '';
     allTools.forEach(tool => {
@@ -33,17 +38,21 @@ seeMoreBtn.addEventListener('click', () => {
     seeLessBtn.classList.remove('hidden');
 })
 
+
+// Display less cards
 seeLessBtn.addEventListener('click', () => {
     cardContainer.innerHTML = '';
     loadAI();
     seeLessBtn.classList.add('hidden');
 })
 
+
+//Create dunamic card
 const createCard = (tool) => {
-    const {description, features, id, image, links, name, published_in} = tool;
-        const element = document.createElement('div');
-        element.classList.add("card", "bg-base-100", "shadow-xl", "rounded-xl", "border");
-        element.innerHTML = `
+    const {features, id, image, name, published_in} = tool;
+        const cardElement = document.createElement('div');
+        cardElement.classList.add("card", "bg-base-100", "shadow-xl", "rounded-xl", "border");
+        cardElement.innerHTML = `
             <figure class="px-5 pt-5">
             <img src="${image}" class="rounded-xl" />
             </figure>
@@ -63,11 +72,49 @@ const createCard = (tool) => {
                     <P>${published_in}</P>
                 </div>
                 <div>
-                    <button class="btn btn-sm">Details</button>
+                    <button class="btn btn-sm details-btn">Details</button>
                 </div>
             </div>
             </div>`;
-        cardContainer.appendChild(element);
+        cardContainer.appendChild(cardElement);
+        loadAIDetails(id);
+        addModal(id);
+        showModal();
 }
 
+//Load AI detials
+const loadAIDetails = async (id) => {
+    const res = await fetch(`https://openapi.programming-hero.com/api/ai/tool/01`);
+    const data = await res.json();
+    const toolsDetails = data.data;
+    addModal(toolsDetails);
+}
+
+// Add details in modal
+const addModal = (toolsDetails) => {
+    const {description, features, pricing, integrations, image_link, accuracy, input_output_examples} = toolsDetails;
+    console.log(description, features, pricing, integrations, image_link, accuracy, input_output_examples);
+    const modalELement = document.getElementById("modal");
+    modalELement.innerHTML = `<form method="dialog" class="modal-box">
+                                    <h3 class="font-bold text-lg">Hello!</h3>
+                                    <p class="py-4">Press ESC key or click the button below to close</p>
+                                    <div class="modal-action">
+                                        <button class="btn">Close</button>
+                                    </div>
+                                </form>`;
+};
+
+
+
+// Display modal
+const showModal = () => {
+    const detailsBtn = cardContainer.querySelectorAll(".details-btn");
+    detailsBtn.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        modal.showModal();
+      });
+    });
+  };
+
 loadAI();
+loadAIDetails();
