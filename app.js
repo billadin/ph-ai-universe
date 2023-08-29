@@ -73,77 +73,77 @@ const createCard = (tool) => {
                     <P>${published_in}</P>
                 </div>
                 <div>
-                    <button class="btn btn-sm details-btn">Details</button>
+                    <button class="btn btn-sm details-btn" id="${id}">Details</button>
                 </div>
             </div>
             </div>`;
         cardContainer.appendChild(cardElement);
-        loadAIDetails(id);
+        showModal(id);
 }
 
-//Load AI detials
+// Display modal
+const showModal = (id) => {
+  const detailsBtn = document.getElementById(id);
+  detailsBtn.addEventListener("click", () => {
+    loadAIDetails(id);
+    modal.showModal();
+  });
+};
+
+//Load AI detials for modal
 const loadAIDetails = async (id) => {
     const res = await fetch(`https://openapi.programming-hero.com/api/ai/tool/${id}`);
     const data = await res.json();
     const toolsDetails = data.data;
-    addModal(toolsDetails);
+    addModalDetails(toolsDetails);
 }
 
+
 // Add details in modal
-const addModal = (toolsDetails) => {
+const addModalDetails = (toolsDetails) => {
+    console.log(toolsDetails);
     const {description, features, pricing, integrations, image_link, accuracy, input_output_examples} = toolsDetails;
-    modalELement.innerHTML = `<form method="dialog" class="modal-box max-w-[70%] w-[70&] p-32 mx-40">
+    modalELement.innerHTML = `<form method="dialog" class="modal-box max-w-[70%] max-h-none w-[70&] p-32 mx-40">
     <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
     <div class="details-container grid grid-cols-1 md:grid-cols-2 gap-5">
         <div class="bg-[#eb57570d] rounded-2xl p-7 border border-[#EB5757]">
-            <h2 class="text-3xl font-semibold leading-8">ChatGPT is an AI-powered<br> chatbot platform that uses<br> OpenAI's GPT technology to<br> simulate human conversation.</h2>
+            <h2 class="text-3xl font-semibold leading-8">${description}</h2>
             <div class="pricing grid grid-cols-3 gap-5 my-6">
-                    <div class="text-base font-bold px-6 py-6 rounded-2xl bg-white text-[#03A30A] text-center">$10/<br>month<br>Basic</div>
-                    <div class="text-base font-bold px-6 py-6 rounded-2xl bg-white text-[#F28927] text-center">$50/<br>month<br>Pro</div>
+                    <div class="text-base font-bold px-6 py-6 rounded-2xl bg-white text-[#03A30A] text-center">${pricing ? pricing[0]?.price : 'No data found'}<br>Basic</div>
+                    <div class="text-base font-bold px-6 py-6 rounded-2xl bg-white text-[#F28927] text-center">${pricing ? pricing[1]?.price : 'No data found'}<br>Pro</div>
                     <div class="text-base font-bold px-6 py-6 rounded-2xl bg-white text-[#EB5757] text-center">Contact<br>us<br>Enterprise</div>
             </div>
-            <div class="feature grid grid-cols-2 gap-10 mb-14">
+            <div class="feature grid grid-cols-2 gap-6 mb-14">
                 <div class="features">
                     <h3 class="text-2xl font-semibold mb-4">Features</h3>
                     <ul class="list-disc list-inside text-[#585858]">
-                        <li>Customizable responses</li>
-                        <li>Multilingual support</li>
-                        <li>Seamless integration</li>
+                        <li>${features[1]?.feature_name}</li>
+                        <li>${features[2]?.feature_name}</li>
+                        <li>${features[3]?.feature_name}</li>
                     </ul>
                 </div>
                 <div class="integrations">
                     <h3 class="text-2xl font-semibold mb-4">Integrations</h3>
                     <ul class="list-disc list-inside text-[#585858]">
-                        <li>FB Messenger</li>
-                        <li>Slack</li>
-                        <li>Telegram</li>
+                        <li>${toolsDetails.integrations ? toolsDetails.integrations[0] : 'No data found'}</li>
+                        <li>${toolsDetails.integrations ? toolsDetails.integrations[1] : 'No data found'}</li>
+                        <li>${toolsDetails.integrations ? toolsDetails.integrations[2] : 'No data found'}</li>
                     </ul>
                 </div>
             </div>
         </div>
         <div class="image-container rounded-2xl p-6 border border-[#E7E7E7]">
             <div class="h-3/4">
-                <img src="./images/chat_gpt.jpg" class="rounded-2xl w-full h-full object-cover">
+                <img src="${image_link[0]}" class="rounded-2xl w-full h-full object-cover">
             </div>
             <div class="h-1/4">
-                <h3 class="text-2xl font-semibold text-center mt-6">Hi, how are you doing today?</h3>
-                <p class="text-base font-normal text-center text-[#585858] mt-4 w-[75%] mx-auto">I'm doing well, thank you for asking. How can I assist you today?</p>
+                <h3 class="text-2xl font-semibold text-center mt-6">${input_output_examples ? input_output_examples[0]?.input : 'No data found'}</h3>
+                <p class="text-base font-normal text-center text-[#585858] mt-4 w-[75%] mx-auto">${input_output_examples ? input_output_examples[0]?.output: 'No data found'}</p>
             </div> 
         </div>
     </div>
 </form>`;
-    showModal();
 };
 
-
-// Display modal
-const showModal = () => {
-    const detailsBtn = cardContainer.querySelectorAll(".details-btn");
-    detailsBtn.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        modal.showModal();
-      });
-    });
-  };
 
 loadAI();
