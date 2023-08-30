@@ -7,6 +7,7 @@ const sortDate = document.getElementById('sort-date');
 
 let defaultTools;
 let allTools;
+let sorted = false;
 // Load AI
 const loadAI = async () => {
     const res = await fetch(`https://openapi.programming-hero.com/api/ai/tools`);
@@ -148,24 +149,33 @@ const addModalDetails = (toolsDetails) => {
 </form>`;
 };
 
-
-sortDate.addEventListener("click", () => {
-  const sortTools = (currentTools) => {
+const sortTools = (currentTools) => {
     console.log(currentTools);
     currentTools.forEach((tool) => {
       const toolDate = tool.published_in;
       const date = new Date(toolDate);
       tool.date = date;
     });
-    currentTools.sort((a, b) => {
-      return a.date - b.date;
-    });
+    if (sorted === false) {
+      sorted = true;
+      currentTools.sort((a, b) => {
+        return a.date - b.date;
+      });
+    } 
+    else if (sorted === true) {
+      sorted = false;
+      currentTools.sort((a, b) => {
+        return b.date - a.date;
+      });
+    } 
     cardContainer.innerHTML = "";
     currentTools.forEach((tool) => {
       createCard(tool);
     });
   };
+
   
+sortDate.addEventListener("click", () => {
   if (defaultTools != 0) {
     sortTools(defaultTools);
   } else if (allTools != 0) {
