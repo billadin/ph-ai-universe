@@ -8,58 +8,71 @@ const sortDate = document.getElementById('sort-date');
 let defaultTools;
 let allTools;
 let sorted = false;
-// Load AI
+let reset = false;
+
+// Load AI Data
 const loadAI = async () => {
     const res = await fetch(`https://openapi.programming-hero.com/api/ai/tools`);
     const data = await res.json();
     const tools = data.data.tools;
     allTools = tools;
-    displayTools(tools);
+    defaultTools = tools.slice(0, 6);
+    showCard(defaultTools);
     };
 
 
-//Display default card
-const displayTools = (tools) => {
-    if (tools.length > 6) {
-        seeMoreBtn.classList.remove('hidden');
+// Set Loader
+const setLoading = (isLoading) => {
+    const loadingSpinner = document.getElementById('loading-spinner');
+    if (isLoading) {
+        loadingSpinner.classList.remove('hidden');
+        seeMoreBtn.classList.add('hidden');
+        seeLessBtn.classList.add('hidden');
+    } else {
+        loadingSpinner.classList.add('hidden');
     }
-    tools = tools.slice(0, 6);
-    defaultTools = tools;
-    tools.forEach(tool => {
+}
+
+
+//Display default card
+const showCard = (toolNumbers) => {
+    if (toolNumbers.length <= 6) {
+        seeMoreBtn.classList.remove('hidden');
+        seeLessBtn.classList.add('hidden');
+    } else {
+        seeMoreBtn.classList.add('hidden');
+        seeLessBtn.classList.remove('hidden');
+    }
+    toolNumbers.forEach(tool => {
         createCard(tool);
     });
+    defaultImage();
+    setLoading(false);
 }
 
  
 //Display all cards
 seeMoreBtn.addEventListener('click', () => {
-    defaultTools = 0;
     cardContainer.innerHTML = '';
-    allTools.forEach(tool => {
-        createCard(tool);
-    });
-    seeMoreBtn.classList.add('hidden');
-    seeLessBtn.classList.remove('hidden');
+    showCard(allTools);
 })
 
 
 // Display less cards
 seeLessBtn.addEventListener('click', () => {
-    allTools = 0;
     cardContainer.innerHTML = '';
-    loadAI();
-    seeLessBtn.classList.add('hidden');
+    showCard(defaultTools);
 })
 
 
-//Create dunamic card
+//Create dynamic card
 const createCard = (tool) => {
     const {features, id, image, name, published_in} = tool;
         const cardElement = document.createElement('div');
         cardElement.classList.add("card", "bg-base-100", "shadow-xl", "rounded-xl", "border");
         cardElement.innerHTML = `
             <figure class="px-5 pt-5">
-            <img src="${image}" class="rounded-xl" />
+            <img src="${image}" class="rounded-xl ai-image" />
             </figure>
             <div class="card-body">
             <h2 class="card-title mb-4">Features</h2>
@@ -74,7 +87,7 @@ const createCard = (tool) => {
             <div class="flex justify-between items-center">
                 <div>
                     <h2 class="card-title mb-4">${name}</h2>
-                    <P class="publish-date" id="${id}">${published_in}</P>
+                    <P class="publish-date">${published_in}</P>
                 </div>
                 <div>
                     <button class="btn btn-sm details-btn" id="${id}">Details</button>
@@ -85,14 +98,17 @@ const createCard = (tool) => {
         showModal(id);
 }
 
+
+
 // Display modal
 const showModal = (id) => {
   const detailsBtn = document.getElementById(id);
   detailsBtn.addEventListener("click", () => {
     loadAIDetails(id);
     modal.showModal();
-  });
+  });   
 };
+
 
 //Load AI detials for modal
 const loadAIDetails = async (id) => {
@@ -100,12 +116,12 @@ const loadAIDetails = async (id) => {
     const data = await res.json();
     const toolsDetails = data.data;
     addModalDetails(toolsDetails);
+    defaultModalImage();
 }
 
 
 // Add details in modal
 const addModalDetails = (toolsDetails) => {
-    console.log(toolsDetails);
     const {description, features, pricing, integrations, image_link, accuracy, input_output_examples} = toolsDetails;
     modalELement.innerHTML = `<form method="dialog" class="modal-box max-w-[70%] w-[70&] p-32 mx-40">
     <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
@@ -138,7 +154,7 @@ const addModalDetails = (toolsDetails) => {
         </div>
         <div class="image-container rounded-2xl p-6 border border-[#E7E7E7]">
             <div class="h-3/4">
-                <img src="${image_link[0]}" class="rounded-2xl w-full h-full object-cover">
+                <img src="${image_link[0]}" class="rounded-2xl w-full h-full object-cover modal-ai-image">
             </div>
             <div class="h-1/4">
                 <h3 class="text-2xl font-semibold text-center mt-6">${input_output_examples ? input_output_examples[0]?.input : 'No data found'}</h3>
@@ -149,38 +165,71 @@ const addModalDetails = (toolsDetails) => {
 </form>`;
 };
 
+// Set default image if no image found
+const defaultImage = () => {
+    const images = document.querySelectorAll('.ai-image');
+    images.forEach((image) => {
+        image.addEventListener('error', ()=> {
+            image.src = "./images/brokenImage.jpg"
+        })
+    })
+}
+
+const defaultModalImage = () => {
+    const images = document.querySelectorAll('.modal-ai-image');
+    images.forEach((image) => {
+        image.addEventListener('error', ()=> {
+            image.src = "./images/brokenImage.jpg"
+        })
+    })
+}
+
+
+// Reset sorting
+const resetSort = (cardNumber) => {
+    cardContainer.innerHTML = '';
+    cardNumber.length <= 6 ? showCard(defaultTools) : showCard(allTools);
+    reset = false;
+    
+}
+
 const sortTools = (currentTools) => {
-    console.log(currentTools);
-    currentTools.forEach((tool) => {
+    let toolsArr = [...currentTools];
+    toolsArr.forEach((tool) => {
       const toolDate = tool.published_in;
       const date = new Date(toolDate);
       tool.date = date;
     });
+
     if (sorted === false) {
       sorted = true;
-      currentTools.sort((a, b) => {
+      toolsArr.sort((a, b) => {
         return a.date - b.date;
       });
     } 
     else if (sorted === true) {
       sorted = false;
-      currentTools.sort((a, b) => {
+      reset = true;
+      toolsArr.sort((a, b) => {
         return b.date - a.date;
       });
     } 
     cardContainer.innerHTML = "";
-    currentTools.forEach((tool) => {
+    toolsArr.forEach((tool) => {
       createCard(tool);
     });
+    defaultImage();
   };
 
   
 sortDate.addEventListener("click", () => {
-  if (defaultTools != 0) {
-    sortTools(defaultTools);
-  } else if (allTools != 0) {
-    sortTools(allTools);
-  }
+    const currentToolCards = document.querySelectorAll('.card')
+    if (reset === true) {
+        resetSort(currentToolCards);
+        return;
+    }
+    currentToolCards.length <= 6 ? sortTools(defaultTools) : sortTools(allTools);
 });
+
 
 loadAI();
